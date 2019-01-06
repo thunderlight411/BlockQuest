@@ -292,7 +292,7 @@ public class BlockQuestListener implements Listener {
                 a.teleport(newLoc);
                 String particle = m.getConfig().getString("find-effect.particle");
                 if(!particle.equalsIgnoreCase("DISABLED")) {
-                    ParticleEffect.valueOf(particle).display(0, 0, 0, 0, 1, a.getLocation(), 16);
+                    //ParticleEffect.valueOf(particle).display(0, 0, 0, 0, 1, a.getLocation(), 16);
                 }
             }, i * m.getConfig().getInt("find-effect.scheduler"));
         }
