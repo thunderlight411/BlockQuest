@@ -21,70 +21,48 @@
 placeholderapi: false
 use-mysql: false
 enabled: false
-disabled-msg: '&cBlocks aren''t enabled yet! If you are a player, refer to a Server Administrator!'
-
+disabled-msg: '&cBlocks aren''t enabled yet! If you are a player, refer to a Server
+  Administrator!'
 use-uuid: true
 check-full-inventory: 0
 full-inventory-msg: '&c&lYour inventory is full!'
-
 mysql-host: host
 mysql-database: database
 mysql-username: username
 mysql-password: password
 mysql-unsafe-save: true
-
 no-permission: '&cYou don''t have permission for this!'
-
-hide-found-blocks: NONE
-blocks: []
-
+hide-found-blocks: none
 find-block-commands:
-    - particle mobSpell %locX% %locY% %locZ% 0.25 0.25 0.25 1 10
-    - rawmsg %player% true &a&lBlock&2&lQUEST
-    - rawmsg %player% false &a
-    - rawmsg %player% true &fYou found a block!
-    - rawmsg %player% true &f%blocksLeft% left.
-    - give %player% diamond 1
-
+- particle firework %locX% %locY% %locZ% 0.25 0.25 0.25 1 25
+- say %player% heeft een nieuwe skull gevonden!
 all-blocks-found-commands:
-    - rawmsg %player% true &a&lBlock&2&lQUEST
-    - rawmsg %player% false &a
-    - rawmsg %player% true &fYou found &lALL &fblocks!
-    - rawmsg %player% true &fNice!
-    - give %player% diamond_block 1
-
+- say %player% heeft alle skulls gevonden!
 already-found-commands:
-    - rawmsg %player% true &a&lBlock&2&lQUEST
-    - rawmsg %player% false &a
-    - rawmsg %player% true &fYou already found this block!
-
+- tell %player% Deze skull had je al eerder gevonden!
 already-found-all-blocks:
-    - rawmsg %player% true &a&lBlock&2&lQUEST
-    - rawmsg %player% false &a
-    - rawmsg %player% true &fYou already found all blocks!
-
+- tell je hebt alle skulls al gevonden!
 find-effect:
     enabled: true
     invisible: true
     small: true
     custom-name: ''
-    head: PUMPKIN
-    chest: NONE
-    leg: NONE
-    boot: NONE
-    particle: FLAME
+    head: eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvOTRmNDc3YzE1MTUwYWRhMWQ4YTg0YmJhNGM5OWY0ODJiMjJmZDFiNTliZWM5ZTA4ZDQ0OGMzYzg4N2UzMzk4OCJ9fX0==
+    chest: LEATHER_CHESTPLATE
+    leg: LEATHER_LEGGINGS
+    boot: LEATHER_BOOTS
+    particle: firework
     loop: 30
     levitation-per-loop: 0.2
     yaw-rotation: 20
     scheduler: 2
     y-start: 0.25
-    sound: ENTITY_FIREWORK_LAUNCH
-    sound-pitch: 0
+    sound: ENTITY_FIREWORK_ROCKET_TWINKLE
+    sound-pitch: -1
     disappear-commands:
         enabled: false
         commands:
-            - 'say The find effect disappeared at %locX% %locY% %locZ%!'
-
+        - say %player% heeft een nieuwe skull gevonden!
 particles:
     loop: 20
     enabled: false
@@ -101,4 +79,4 @@ particles:
         dz: 0.05
         speed: 0.1
         quantity: 35
-        type: FLAME
+        type: NONE
