@@ -1,1 +1,6 @@
 *.iml
+bin/
+.settings/
+.classpath
+.project
+*.jar
