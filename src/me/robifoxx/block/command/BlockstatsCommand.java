@@ -21,20 +21,17 @@ public class BlockstatsCommand implements CommandExecutor {
             sender.sendMessage(plugin.getConfig().getString("no-permission").replace("&", "§"));
             return true;
         }
+       /* Player marco = (Player)sender;
+        for(int i = 0; i < args.length; i++) {
+            marco.sendMessage(args);
+        }*/
+        Player player = (Player)sender;
                 int currentBlocks = plugin.getConfig().getStringList("blocks").size();
-                if(args.length >= 2) {
-                   /* String argReq = Utils.getIdentifierFromUsername(args[1]);
-                    if((!plugin.useMysql && plugin.data.getConfig().getString("data." + argReq + ".x") != null)
-                            || ( plugin.useMysql && SQLPlayer.playerExists(argReq))) {
-                        foundBlocks = plugin.data.getConfig().getString("data." + argReq + ".x").split(";").length - 1;
-                    } else {
-                        Utils.sendMessageFromMSGS(sender, plugin.msgs.getConfig().getString("stats-unknown-player").replace("%target%", args[1]));
-                        return true;
-                    }*/
-                    Utils.sendMessageFromMSGS(sender, plugin.msgs.getConfig().getString("personal-stats").replace("%target%", args[1])
+                if(args.length >= 1) {
+                    Utils.sendMessageFromMSGS(sender, plugin.msgs.getConfig().getString("personal-stats").replace("%target%", args[0])
                             .replace("%currentBlocks%", "" + currentBlocks)
-                            .replace("%percent%", "" + BlockQuestAPI.getInstance().getFoundPercent(args[1], 2))
-                            .replace("%foundBlocks%", "" + BlockQuestAPI.getInstance().getFoundBlocks(args[1])));
+                            .replace("%percent%", "" + BlockQuestAPI.getInstance().getFoundPercent(args[0], 2))
+                            .replace("%foundBlocks%", "" + BlockQuestAPI.getInstance().getFoundBlocks(args[0])));
                 } else {
                     int foundAllBlocks = 0;
                     if (!plugin.useMysql) {
