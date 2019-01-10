@@ -21,8 +21,7 @@
 placeholderapi: false
 use-mysql: false
 enabled: false
-disabled-msg: '&cBlocks aren''t enabled yet! If you are a player, refer to a Server
-  Administrator!'
+disabled-msg: '&cBlocks aren''t enabled yet! If you are a player, refer to a Server Administrator!'
 use-uuid: true
 check-full-inventory: 0
 full-inventory-msg: '&c&lYour inventory is full!'
@@ -41,7 +40,7 @@ all-blocks-found-commands:
 already-found-commands:
 - tell %player% Deze skull had je al eerder gevonden!
 already-found-all-blocks:
-- tell je hebt alle skulls al gevonden!
+- tell %player% je hebt alle skulls al gevonden!
 find-effect:
     enabled: true
     invisible: true
