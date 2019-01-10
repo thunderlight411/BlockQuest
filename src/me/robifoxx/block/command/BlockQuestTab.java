@@ -21,7 +21,7 @@ public class BlockQuestTab implements TabCompleter {
                 tabList = list;
             }
         } else if(args.length == 1) {
-            tabList = new ArrayList<>(Arrays.asList("reload", "stats", "save"));
+            tabList = new ArrayList<>(Arrays.asList("reload", "stats", "save", "toggle"));
         }
         List<String> newTabList = null;
         if(tabList != null) {
