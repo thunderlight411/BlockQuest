@@ -5,21 +5,16 @@ import me.robifoxx.block.api.Config;
 import me.robifoxx.block.api.FindEffect;
 import me.robifoxx.block.api.Metrics;
 import me.robifoxx.block.api.Skulls;
-import me.robifoxx.block.api.abstracts.IBlockQuest;
-import me.robifoxx.block.api.constructors.HiddenBlock;
 import me.robifoxx.block.command.BlockQuestCommand;
 import me.robifoxx.block.command.BlockQuestTab;
 import me.robifoxx.block.mysql.MySQL;
 import me.robifoxx.block.mysql.SQLPlayer;
 import org.bukkit.*;
-import org.bukkit.command.Command;
-import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.File;
-import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -29,8 +24,12 @@ import java.util.List;
  * All rights reserved.
  */
 public class Main extends JavaPlugin  {
-    public MySQL mysql;
+	
+// ======================================================================== global data ======================================================================== //
+	public MySQL mysql;
+    // stores players in editing mode
     public ArrayList<String> inEdit = new ArrayList<>();
+    
     public HashMap<String, List<String>> blocksss = new HashMap<>();
     public HashMap<String, String> saved_x = new HashMap<>();
     public HashMap<String, String> saved_y = new HashMap<>();
@@ -38,18 +37,23 @@ public class Main extends JavaPlugin  {
     public HashMap<String, String> saved_world = new HashMap<>();
     public Config data;
     public Config msgs;
+    // stores if database is used
     public boolean useMysql = false;
     public boolean unsafeSave = true;
-    public ArrayList<String> eventReturn = new ArrayList<>();
+    public ArrayList<String> pendingEvents = new ArrayList<>();
     public boolean findEffect = false;
+    // blockquest enabled state (toggled by toggle command)
     public boolean enabled = false;
     public String disabledMsg = "&cBlocks aren't enabled yet!";
     public int checkFullInventory = 0;
     public String fullInventoryMsg = "&c&lYour inventory is full!";
+    // block used to replace found blocks
     public Material hideFoundBlocks = Material.AIR;
     public FindEffect findEffectC;
+    // reference to Main singleton class instance
     private static Main plugin;
 
+// ======================================================================== on plugin enable ======================================================================== //
     public void onEnable() {
         String fileName = this.getDescription().getName();
         if(!(new File("plugins/" + fileName + "/config.yml").exists())) {
@@ -264,10 +268,13 @@ public class Main extends JavaPlugin  {
         // TEST END
     }
 
+    // Helper method, called in onEnable
     public void createMySQL() {
         mysql.update("CREATE TABLE IF NOT EXISTS " + this.getDescription().getName() + " (UUID varchar(128), X varchar(2048) default \"none\", Y varchar(2048) default \"none\", Z varchar(2048) default \"none\", WORLD varchar(2048) default \"none\")");
     }
 
+ // ======================================================================== on plugin disable ======================================================================== //
+    
     public void onDisable() {
         for(Player pl : Bukkit.getOnlinePlayers()) {
             if(saved_x.get(pl.getName()) != null) {
@@ -287,7 +294,11 @@ public class Main extends JavaPlugin  {
         }
     }
 
+    // ======================================================================== get methods ======================================================================== //
+    
+    // get reference to Main singleton class 
     public static Main getPlugin() {
         return plugin;
     }
+
 }

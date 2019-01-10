@@ -11,21 +11,29 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
 public class BlockQuestCommand implements CommandExecutor {
-    private Main plugin;
-    public BlockQuestCommand(Main plugin) {
-        this.plugin = plugin;
+    
+	private Main main;
+    
+    // get reference to main class
+    public BlockQuestCommand(Main main) {
+        this.main = main;
     }
+    
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
-        if(!sender.hasPermission("blockquest.command")) {
-            sender.sendMessage(plugin.getConfig().getString("no-permission").replace("&", "§"));
+        
+    	// ================================ Permission Check (should be checked by spigot) =============================== //
+    	if(!sender.hasPermission("blockquest.command")) {
+            sender.sendMessage(main.getConfig().getString("no-permission").replace("&", "§"));
             return true;
         }
-        //plugin.getConfig().getStringList("blocks").size() - Main.blocksss.get(e.getPlayer().getName()).size()
-        if(args.length < 1) {
-            if (plugin.inEdit.remove(sender.getName())) {
+        // ========================================================== "blockquest" command (no args) ========================================================== //
+    	if(args.length < 1) {
+    		// add player to edit mode
+            if (main.inEdit.remove(sender.getName())) {
                 sender.sendMessage("§cYou disabled edit mode.");
             } else {
+            	// SPIT OUT A BIG FUCKING MESSAGE
                 sender.sendMessage("§7§m----------------------------------------");
                 sender.sendMessage("§aYou entered edit mode!");
                 sender.sendMessage("§aClick on blocks to add it to the config file!");
@@ -35,67 +43,73 @@ public class BlockQuestCommand implements CommandExecutor {
                 sender.sendMessage("§a§lType §6§l/blockquest stats [player] §a§lto check stats!");
                 sender.sendMessage("§a§lType §6§l/blockquest save §a§lto save stats!");
                 sender.sendMessage("§7§m----------------------------------------");
-                if(!plugin.enabled) {
+                // if skull hunt is disabled
+                if(!main.enabled) {
                     sender.sendMessage("§c§lBlocks are disabled. Players cant find them until you enable it with §6§l/blockquest toggle");
                 }
-                //sender.sendMessage("§a§lType §6§l/blockquest wipedata §a§lto clear data. §c§l!WARNING! This resets EVERYONE'S data!");
-                plugin.inEdit.add(sender.getName());
+                // add player to edit mode
+                main.inEdit.add(sender.getName());
             }
+        // ========================================================== "blockquest" command with arguments ========================================================== //
         } else {
+        	// ============================================= "reload" argument ============================================= //
             if(args[0].equalsIgnoreCase("reload")) {
-                plugin.reloadConfig();
-                Utils.sendMessageFromMSGS(sender, plugin.msgs.getConfig().getString("config-reloaded"));
+                main.reloadConfig();
+                Utils.sendMessageFromMSGS(sender, main.msgs.getConfig().getString("config-reloaded"));
+            // ============================================= "toggle" argument ============================================= //
             } else if(args[0].equalsIgnoreCase("toggle")) {
-                plugin.enabled = !plugin.enabled;
-                if(plugin.enabled) {
-                    Utils.sendMessageFromMSGS(sender, plugin.msgs.getConfig().getString("enabled-blocks"));
+                // toggle boolean
+            	main.enabled = !main.enabled;
+                // send msg to player
+            	if(main.enabled) {
+                    Utils.sendMessageFromMSGS(sender, main.msgs.getConfig().getString("enabled-blocks"));
                 } else {
-                    Utils.sendMessageFromMSGS(sender, plugin.msgs.getConfig().getString("disabled-blocks"));
+                    Utils.sendMessageFromMSGS(sender, main.msgs.getConfig().getString("disabled-blocks"));
                 }
-                plugin.getConfig().set("enabled", plugin.enabled);
-                plugin.saveConfig();
+            	// save enabled/disable state to config file
+                main.getConfig().set("enabled", main.enabled);
+                main.saveConfig();
+            // ============================================= "save" argument ============================================= //  
             } else if(args[0].equalsIgnoreCase("save")) {
                 int amount = 0;
-                for(Player pl : Bukkit.getOnlinePlayers()) {
-                    if (plugin.saved_x.get(pl.getName()) != null) {
+                // for each player online
+                for(Player pl : Bukkit.getOnlinePlayers()) { 
+                    if (main.saved_x.get(pl.getName()) != null) {
                         amount++;
-                        Utils.sendMessageFromMSGS(sender, plugin.msgs.getConfig().getString("saving-data-for").replace("%target%", pl.getName()));
-                        if (plugin.useMysql) {
-                            SQLPlayer.setString(Utils.getIdentifier(pl), "X", plugin.saved_x.get(pl.getName()));
-                            SQLPlayer.setString(Utils.getIdentifier(pl), "Y", plugin.saved_y.get(pl.getName()));
-                            SQLPlayer.setString(Utils.getIdentifier(pl), "Z", plugin.saved_z.get(pl.getName()));
-                            SQLPlayer.setString(Utils.getIdentifier(pl), "WORLD", plugin.saved_world.get(pl.getName()));
+                        Utils.sendMessageFromMSGS(sender, main.msgs.getConfig().getString("saving-data-for").replace("%target%", pl.getName()));
+                        if (main.useMysql) {
+                            SQLPlayer.setString(Utils.getIdentifier(pl), "X", main.saved_x.get(pl.getName()));
+                            SQLPlayer.setString(Utils.getIdentifier(pl), "Y", main.saved_y.get(pl.getName()));
+                            SQLPlayer.setString(Utils.getIdentifier(pl), "Z", main.saved_z.get(pl.getName()));
+                            SQLPlayer.setString(Utils.getIdentifier(pl), "WORLD", main.saved_world.get(pl.getName()));
                         } else {
-                            plugin.data.getConfig().set("data." + Utils.getIdentifier(pl) + ".x", plugin.saved_x.get(pl.getName()));
-                            plugin.data.getConfig().set("data." + Utils.getIdentifier(pl) + ".y", plugin.saved_y.get(pl.getName()));
-                            plugin.data.getConfig().set("data." + Utils.getIdentifier(pl) + ".z", plugin.saved_z.get(pl.getName()));
-                            plugin.data.getConfig().set("data." + Utils.getIdentifier(pl) + ".world", plugin.saved_world.get(pl.getName()));
-                            plugin.data.saveConfig();
+                            main.data.getConfig().set("data." + Utils.getIdentifier(pl) + ".x", main.saved_x.get(pl.getName()));
+                            main.data.getConfig().set("data." + Utils.getIdentifier(pl) + ".y", main.saved_y.get(pl.getName()));
+                            main.data.getConfig().set("data." + Utils.getIdentifier(pl) + ".z", main.saved_z.get(pl.getName()));
+                            main.data.getConfig().set("data." + Utils.getIdentifier(pl) + ".world", main.saved_world.get(pl.getName()));
+                            main.data.saveConfig();
                         }
                     }
                 }
-                Utils.sendMessageFromMSGS(sender, plugin.msgs.getConfig().getString("finished-saving").replace("%amount%", "" + amount));
+                // send msg to player
+                Utils.sendMessageFromMSGS(sender, main.msgs.getConfig().getString("finished-saving").replace("%amount%", "" + amount));
+             // ============================================= "stats" argument ============================================= //  
             } else if(args[0].equalsIgnoreCase("stats")) {
-                int currentBlocks = plugin.getConfig().getStringList("blocks").size();
+                int currentBlocks = main.getConfig().getStringList("blocks").size();
+                // ============================================= [player string] second argument =============================================
                 if(args.length >= 2) {
-                   /* String argReq = Utils.getIdentifierFromUsername(args[1]);
-                    if((!plugin.useMysql && plugin.data.getConfig().getString("data." + argReq + ".x") != null)
-                            || ( plugin.useMysql && SQLPlayer.playerExists(argReq))) {
-                        foundBlocks = plugin.data.getConfig().getString("data." + argReq + ".x").split(";").length - 1;
-                    } else {
-                        Utils.sendMessageFromMSGS(sender, plugin.msgs.getConfig().getString("stats-unknown-player").replace("%target%", args[1]));
-                        return true;
-                    }*/
-                    Utils.sendMessageFromMSGS(sender, plugin.msgs.getConfig().getString("personal-stats").replace("%target%", args[1])
+                	// send msg to player
+                    Utils.sendMessageFromMSGS(sender, main.msgs.getConfig().getString("personal-stats").replace("%target%", args[1])
                             .replace("%currentBlocks%", "" + currentBlocks)
                             .replace("%percent%", "" + BlockQuestAPI.getInstance().getFoundPercent(args[1], 2))
                             .replace("%foundBlocks%", "" + BlockQuestAPI.getInstance().getFoundBlocks(args[1])));
+                // ============================================= single argument code =============================================
                 } else {
                     int foundAllBlocks = 0;
-                    if (!plugin.useMysql) {
-                        for (String s : plugin.data.getConfig().getConfigurationSection("data").getKeys(false)) {
+                    if (!main.useMysql) {
+                        for (String s : main.data.getConfig().getConfigurationSection("data").getKeys(false)) {
                             if (!s.equalsIgnoreCase("1-1-1-1-1-1")) {
-                                int foundBlocks = plugin.data.getConfig().getString("data." + s + ".x").split(";").length - 1;
+                                int foundBlocks = main.data.getConfig().getString("data." + s + ".x").split(";").length - 1;
                                 if (foundBlocks >= currentBlocks) {
                                     foundAllBlocks++;
                                 }
@@ -109,11 +123,13 @@ public class BlockQuestCommand implements CommandExecutor {
                             }
                         }
                     }
-                    Utils.sendMessageFromMSGS(sender, plugin.msgs.getConfig().getString("global-stats")
+                 // send msg to player
+                    Utils.sendMessageFromMSGS(sender, main.msgs.getConfig().getString("global-stats")
                             .replace("%currentBlocks%", "" + currentBlocks)
                             .replace("%percent%", BlockQuestAPI.getInstance().getFoundPercent(2) + "")
                             .replace("%foundAllBlocks%", "" + foundAllBlocks));
                 }
+            // ============================================= UNUSED wipedata argument ============================================= //  
             } /*else if(args[0].equalsIgnoreCase("wipedata")) {
                     sender.sendMessage("§aWiping data...");
                     boolean success = false;
