@@ -1,6 +1,5 @@
 *.iml
-bin/
-.settings/
-.classpath
-.project
 *.jar
+.idea/
+out/
+server/

@@ -6,7 +6,7 @@ import me.robifoxx.block.api.FindEffect;
 import me.robifoxx.block.api.Metrics;
 import me.robifoxx.block.api.Skulls;
 import me.robifoxx.block.command.BlockQuestCommand;
-import me.robifoxx.block.command.BlockstatsCommand;
+import me.robifoxx.block.command.BlockStatsCommand;
 import me.robifoxx.block.command.BlockQuestTab;
 import me.robifoxx.block.mysql.MySQL;
 import me.robifoxx.block.mysql.SQLPlayer;
@@ -239,7 +239,7 @@ public class Main extends JavaPlugin  {
             findEffectC = new FindEffect(h, c, l, b, visible, small, getConfig().getString("find-effect.custom-name"));
         }
         getCommand("blockquest").setExecutor(new BlockQuestCommand(this));
-        getCommand("blockstats").setExecutor(new BlockstatsCommand(this));
+        getCommand("blockstats").setExecutor(new BlockStatsCommand(this));
         getCommand("blockquest").setTabCompleter(new BlockQuestTab());
 
         // TEST START

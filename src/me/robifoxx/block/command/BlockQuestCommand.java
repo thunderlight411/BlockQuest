@@ -23,13 +23,6 @@ public class BlockQuestCommand implements CommandExecutor {
     
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
-    	// ================================ Permission Check (should be checked by spigot) =============================== //
-    	/*
-    	if(!sender.hasPermission("blockquest.command")) {
-            sender.sendMessage(main.getConfig().getString("no-permission").replace("&", "§"));
-            return true;
-        }
-        */
     	if(args.length < 1) {
     		noArgumentsCommand(sender);
         } else {
@@ -152,7 +145,7 @@ public class BlockQuestCommand implements CommandExecutor {
                     .replace("%foundAllBlocks%", "" + foundAllBlocks));
         }
     }
-    
+}
     // ============================================= UNUSED wipedata argument ============================================= //  
     /*else if(args[0].equalsIgnoreCase("wipedata")) {
     sender.sendMessage("§aWiping data...");
@@ -180,4 +173,3 @@ public class BlockQuestCommand implements CommandExecutor {
         sender.sendMessage("§cData wipe failed! :(");
     }
 }*/
-}
