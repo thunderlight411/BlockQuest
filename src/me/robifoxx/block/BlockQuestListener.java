@@ -5,8 +5,8 @@ import me.robifoxx.block.events.BlockFindEvent;
 import me.robifoxx.block.mysql.SQLPlayer;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
-import org.bukkit.Material;
 import org.bukkit.Sound;
+import org.bukkit.Material;
 import org.bukkit.entity.ArmorStand;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -142,6 +142,8 @@ public class BlockQuestListener implements Listener {
                 }
             // =============================== player is not in edit mode =============================== //
             } else {
+                if(main.inEdit.contains(e.getPlayer().getUniqueId()) && e.getClickedBlock().getType() !=Material.PLAYER_HEAD)
+                {e.getPlayer().sendMessage("§cThis is not a player head!");}
                 if(main.getConfig().getStringList("blocks").contains(block)) {
                     if(main.blocksss.get(e.getPlayer().getName()) == null
                             || !main.blocksss.get(e.getPlayer().getName()).contains(block)) {
