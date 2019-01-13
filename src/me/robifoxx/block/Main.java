@@ -28,90 +28,120 @@ import java.util.UUID;
 public class Main extends JavaPlugin  {
 	
 // ======================================================================== global data ======================================================================== //
-	public MySQL mysql;
+	// MySQL object reference
+    public MySQL mysql;
     // stores players in editing mode
     public ArrayList<UUID> inEdit = new ArrayList<>();
-    
+    // block data
     public HashMap<String, List<String>> blocksss = new HashMap<>();
     public HashMap<String, String> saved_x = new HashMap<>();
     public HashMap<String, String> saved_y = new HashMap<>();
     public HashMap<String, String> saved_z = new HashMap<>();
     public HashMap<String, String> saved_world = new HashMap<>();
+    // config references
     public Config data;
     public Config msgs;
     // stores if database is used
     public boolean useMysql = false;
+    // stores if Mysql unsafe saves is used
     public boolean unsafeSave = true;
+    // stores for which players the click event is running
     public ArrayList<String> pendingEvents = new ArrayList<>();
+    // stores if Effects are used
     public boolean findEffect = false;
     // blockquest enabled state (toggled by toggle command)
     public boolean enabled = false;
-    public String disabledMsg = "&cBlocks aren't enabled yet!";
+    // stores the amount of free inv slots required for a reward
     public int checkFullInventory = 0;
+    // config msgs
+    public String disabledMsg = "&cBlocks aren't enabled yet!";
     public String fullInventoryMsg = "&c&lYour inventory is full!";
     // block used to replace found blocks
     public Material hideFoundBlocks = Material.AIR;
+    // stores effect data
     public FindEffect findEffectC;
     // reference to Main singleton class instance
     private static Main plugin;
 
 // ======================================================================== on plugin enable ======================================================================== //
     public void onEnable() {
+        // get plugin folder name
         String fileName = this.getDescription().getName();
+        // copy default config if it doesn't exist. getConfig() = reference to config.yml
         if(!(new File("plugins/" + fileName + "/config.yml").exists())) {
             getConfig().options().copyDefaults(true);
             saveConfig();
         }
         {
+            // open data.yml
             Config c = new Config("plugins/" + fileName, "data.yml", this);
             c.create();
+            // load default data.yml if it doesn't exist.
             c.setDefault("data.yml");
-            if(!c.exists()) {
-                c.getConfig().options().copyDefaults(true);
-                c.saveConfig();
-            }
+            c.getConfig().options().copyDefaults(true);
+            c.saveConfig();
+            // pass current config reference to global variable data
             data = c;
         }
         {
+            // open messages.yml
             Config c = new Config("plugins/" + fileName, "messages.yml", this);
             c.create();
-
+            // load default messages.yml if it doesn't exist.
             c.setDefault("messages.yml");
             c.getConfig().options().copyDefaults(true);
             c.saveConfig();
-
+            // pass current config reference to global variable msgs
             msgs = c;
         }
+
+        // if use-mysql: equals true in config.yml
         if(getConfig().getString("use-mysql").equalsIgnoreCase("true")) {
+            // create mysql object
             mysql = new MySQL(getConfig().getString("mysql-host"), getConfig().getString("mysql-database"), getConfig().getString("mysql-username"), getConfig().getString("mysql-password"));
+            // call to helper function
             createMySQL();
             useMysql = true;
         }
+
+        // create and bind BlockQuestListener instance to bukkit
         Bukkit.getPluginManager().registerEvents(new BlockQuestListener(this), this);
+
+        // load mysql-unsafe-save from config.yml
         if(getConfig().getString("mysql-unsafe-save") != null) {
             if(getConfig().getString("mysql-unsafe-save").equalsIgnoreCase("false")) {
                 unsafeSave = false;
             }
         }
+
+        // if already-found-all-blocks: in config.yml is null set default value.
         if(getConfig().getStringList("already-found-all-blocks") == null) {
             getConfig().set("already-found-all-blocks", new ArrayList<String>().add("msg %player% You already found all blocks!"));
         }
+
+        // load plugin enabled/disabled state + disabled msg from config.yml
         if(getConfig().get("enabled") != null) {
             enabled = getConfig().getBoolean("enabled");
             if(getConfig().get("disabled-msg") != null) {
                 disabledMsg = getConfig().getString("disabled-msg");
             }
         }
+
+        // load useUUID value from config.yml
         if(getConfig().get("use-uuid") != null) {
             Utils.useUUID = getConfig().getBoolean("use-uuid");
         }
+
+        // load the amount of free spaces required for a reward from config.yml
         if (getConfig().get("check-full-inventory") != null) {
             checkFullInventory = getConfig().getInt("check-full-inventory");
             if (getConfig().get("full-inventory-msg") != null) {
                 fullInventoryMsg = getConfig().getString("full-inventory-msg");
             }
         }
+
         {
+            // load hide block type based on string defined at hide-found-blocks: in config.yml
             String s = getConfig().getString("hide-found-blocks");
             if (s != null) {
                 if (s.equalsIgnoreCase("NONE")) {
@@ -123,6 +153,8 @@ public class Main extends JavaPlugin  {
                 hideFoundBlocks = null;
             }
         }
+
+        // if using placeholderapi: true defined in config.yml
         if(getConfig().getString("placeholderapi") != null
                 && getConfig().getString("placeholderapi").equalsIgnoreCase("true")) {
             if(Bukkit.getPluginManager().isPluginEnabled("PlaceholderAPI")) {
@@ -133,8 +165,11 @@ public class Main extends JavaPlugin  {
                 getLogger().warning("https://www.spigotmc.org/resources/p.6245/");
             }
         }
+
+        // load if effects are used
         findEffect = getConfig().getBoolean("find-effect.enabled");
         boolean enabledParticle = getConfig().getBoolean("particles.enabled");
+        // load particle effect data
         if(enabledParticle) {
             int loop = getConfig().getInt("particles.loop");
             String f_type;
@@ -204,11 +239,17 @@ public class Main extends JavaPlugin  {
                 }
             }, loop, loop);
         }
+
+        // ????????? sends block data to a remote site ????????? check Metrics class ???
         getLogger().info("Enabling Metrics (bStats).");
         Metrics m = new Metrics(this);
         m.addCustomChart(new Metrics.SingleLineChart("blocks", () -> BlockQuestAPI.getInstance().getAllBlocks().length));
         getLogger().info("Enabled Metrics.");
+
+        // store this instance reference to static plugin variable
         plugin = this;
+
+        // load effect data stored at find-effect: in config.yml
         {
             boolean visible = !getConfig().getBoolean("find-effect.invisible");
             boolean small = getConfig().getBoolean("find-effect.small");
@@ -238,47 +279,22 @@ public class Main extends JavaPlugin  {
             }
             findEffectC = new FindEffect(h, c, l, b, visible, small, getConfig().getString("find-effect.custom-name"));
         }
+
+        // set command Executors and tab completers
         getCommand("blockquest").setExecutor(new BlockQuestCommand(this));
         getCommand("blockstats").setExecutor(new BlockStatsCommand(this));
         getCommand("blockquest").setTabCompleter(new BlockQuestTab());
-
-        // TEST START
-       /* IBlockQuest bq = new IBlockQuest() {
-            @Override
-            public void onBlockFindSuccess(Player p, HiddenBlock hb) {
-                p.sendMessage("You found a block");
-                p.getInventory().addItem(new ItemStack(Material.GOLD_INGOT));
-            }
-
-            @Override
-            public void blockAlreadyFound(Player p, HiddenBlock hb) {
-                p.sendMessage("You already found this block");
-            }
-
-            @Override
-            public void alreadyFoundAllBlocks(Player p, HiddenBlock hb) {
-                p.sendMessage("You already found all blocks");
-            }
-
-            @Override
-            public void foundAllBlocks(Player p, HiddenBlock hb) {
-                p.sendMessage("You found all blocks");
-                p.getInventory().addItem(new ItemStack(Material.DIAMOND));
-            }
-        };
-        bq.registerBlock(new Location(Bukkit.getWorld("world"), 0, 0, 0));
-        BlockQuestAPI.getInstance().registerQuest(bq);*/
-        // TEST END
     }
 
     // Helper method, called in onEnable
-    public void createMySQL() {
+    private void createMySQL() {
         mysql.update("CREATE TABLE IF NOT EXISTS " + this.getDescription().getName() + " (UUID varchar(128), X varchar(2048) default \"none\", Y varchar(2048) default \"none\", Z varchar(2048) default \"none\", WORLD varchar(2048) default \"none\")");
     }
 
  // ======================================================================== on plugin disable ======================================================================== //
     
     public void onDisable() {
+        // for each player save blocks
         for(Player pl : Bukkit.getOnlinePlayers()) {
             if(saved_x.get(pl.getName()) != null) {
                 if (useMysql) {

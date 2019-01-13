@@ -39,7 +39,7 @@ public class Utils {
     		if(Main.getPlugin(Main.class).blocksss.get(p.getName()) != null
     				// check if there's a block type to replace the skulls with
                     && Main.getPlugin(Main.class).hideFoundBlocks != null) {
-    			// ????????????????????????????? get found blocks from auxiliary storage ????????????????????????????
+                // load blocks: [string list] from config.yml ?????? but there's no blocks: entry in config file ??? no-op ???
                 for (String s : Main.getProvidingPlugin(Main.class).getConfig().getStringList("blocks")) {
                     if(Main.getPlugin(Main.class).blocksss.get(p.getName()).contains(s)) {
                         String[] splt = s.split(";");
