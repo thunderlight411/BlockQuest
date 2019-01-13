@@ -10,6 +10,7 @@ import java.util.UUID;
 
 public class Utils {
     public static boolean useUUID = true;
+    
     public static String getIdentifier(Player p) {
         if(useUUID) {
             return p.getUniqueId().toString();
@@ -17,6 +18,7 @@ public class Utils {
             return p.getName();
         }
     }
+    
     public static String getIdentifierFromUsername(String p) {
         if(!useUUID) {
             return p;
@@ -24,13 +26,20 @@ public class Utils {
             return Bukkit.getOfflinePlayer(p).getUniqueId().toString();
         }
     }
+    
     public static String getUsername(String uuid) {
         return Bukkit.getOfflinePlayer(UUID.fromString(uuid)).getName();
     }
+    
+    
     public static void hideFoundBlocks(Player p) {
-        Bukkit.getScheduler().scheduleSyncDelayedTask(Main.getProvidingPlugin(Main.class), () -> {
-            if(Main.getPlugin(Main.class).blocksss.get(p.getName()) != null
+        // add task for the next tick
+    	Bukkit.getScheduler().scheduleSyncDelayedTask(Main.getProvidingPlugin(Main.class), () -> {
+    		// check if there's a entity in the hashmap based 
+    		if(Main.getPlugin(Main.class).blocksss.get(p.getName()) != null
+    				// check if there's a block type to replace the skulls with
                     && Main.getPlugin(Main.class).hideFoundBlocks != null) {
+    			// ????????????????????????????? get found blocks from auxiliary storage ????????????????????????????
                 for (String s : Main.getProvidingPlugin(Main.class).getConfig().getStringList("blocks")) {
                     if(Main.getPlugin(Main.class).blocksss.get(p.getName()).contains(s)) {
                         String[] splt = s.split(";");
@@ -41,6 +50,7 @@ public class Utils {
             }
         }, 1);
     }
+    
     public static int getEmptyInventorySpaces(Player p) {
         int empty = 0;
         for(int i = 0; i < p.getInventory().getSize(); i++) {
@@ -51,6 +61,8 @@ public class Utils {
         }
         return empty;
     }
+    
+    // send a message stored in the config
     public static void sendMessageFromMSGS(CommandSender sender, String message) {
         sender.sendMessage(message.replace("&", "§").replace("%player%", sender.getName()).split("\\\\n"));
     }

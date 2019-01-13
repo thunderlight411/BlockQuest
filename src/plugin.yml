@@ -1,5 +1,5 @@
 name: BlockQuest
-version: 2.0-pre1.1
+version: 2.0.1
 main: me.robifoxx.block.Main
 softdepend: [PlaceholderAPI]
 api-version: 1.13
@@ -7,7 +7,13 @@ commands:
     blockquest:
         description: Use this to add/remove blocks
         permission: blockquest.command
+    blockstats:
+        description: Use this to check how many blocks are found
+        permission: blockquest.stats
 permissions:
     blockquest.command:
         description: access to the /blockquest command
+        default: op
+    blockquest.stats:
+        description: access to the /blockstats command
         default: op
