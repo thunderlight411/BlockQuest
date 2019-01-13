@@ -129,8 +129,8 @@ public class BlockQuestListener implements Listener {
             });
             // convert block location data to readable string format X;Y;Z;worldname
             String block = BlockQuestAPI.getInstance().convertLocToString(e.getClickedBlock().getLocation());
-            // =================== check if player is in edit mode =================== //
-            if(main.inEdit.contains(e.getPlayer().getName())) {
+            // =============================== check if player is in edit mode =============================== //
+            if(main.inEdit.contains(e.getPlayer().getUniqueId())) {
                 // check if location is already added to the hunt list if so remove it
             	if(BlockQuestAPI.getInstance().removeLocation(e.getClickedBlock().getLocation())) {
                     e.getPlayer().sendMessage("§cRemoved this block!");
@@ -139,11 +139,7 @@ public class BlockQuestListener implements Listener {
                     BlockQuestAPI.getInstance().addLocation(e.getClickedBlock().getLocation());
                     e.getPlayer().sendMessage("§aAdded this block!");
                 }
-                // remove player from edit list
-                main.inEdit.remove(e.getPlayer().getName());
-                // send msg to player
-                e.getPlayer().sendMessage("§aExited edit mode.");
-            // =================== player is not in edit mode =================== //
+            // =============================== player is not in edit mode =============================== //
             } else {
                 if(main.getConfig().getStringList("blocks").contains(block)) {
                     if(main.blocksss.get(e.getPlayer().getName()) == null

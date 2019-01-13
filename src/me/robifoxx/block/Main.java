@@ -18,6 +18,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.UUID;
 
 /**
  * Created by RobiFoxx.
@@ -28,7 +29,7 @@ public class Main extends JavaPlugin  {
 // ======================================================================== global data ======================================================================== //
 	public MySQL mysql;
     // stores players in editing mode
-    public ArrayList<String> inEdit = new ArrayList<>();
+    public ArrayList<UUID> inEdit = new ArrayList<>();
     
     public HashMap<String, List<String>> blocksss = new HashMap<>();
     public HashMap<String, String> saved_x = new HashMap<>();
