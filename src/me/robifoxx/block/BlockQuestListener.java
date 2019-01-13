@@ -131,7 +131,7 @@ public class BlockQuestListener implements Listener {
             // convert block location data to readable string format X;Y;Z;worldname
             String block = BlockQuestAPI.getInstance().convertLocToString(e.getClickedBlock().getLocation());
             // =============================== check if player is in edit mode =============================== //
-            if(main.inEdit.contains(e.getPlayer().getUniqueId()) && e.getClickedBlock().getType() == Material.PLAYER_HEAD) {
+            if(main.inEdit.contains(e.getPlayer().getUniqueId()) && e.getClickedBlock().getType() == Material.PLAYER_HEAD || e.getClickedBlock().getType() == Material.PLAYER_WALL_HEAD) {
                 // check if location is already added to the hunt list if so remove it
             	if(BlockQuestAPI.getInstance().removeLocation(e.getClickedBlock().getLocation())) {
                     e.getPlayer().sendMessage("§cRemoved this block!");
