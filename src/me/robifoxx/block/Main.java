@@ -296,7 +296,6 @@ public class Main extends JavaPlugin  {
             }
         }
     }
-
     // ======================================================================== get methods ======================================================================== //
     
     // get reference to Main singleton class 
