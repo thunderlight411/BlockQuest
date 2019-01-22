@@ -46,7 +46,7 @@ public class Main extends JavaPlugin  {
     // stores if Mysql unsafe saves is used
     public boolean unsafeSave = true;
     // stores for which players the click event is running
-    public ArrayList<String> pendingEvents = new ArrayList<>();
+    public ArrayList<UUID> pendingEvents = new ArrayList<>();
     // stores if Effects are used
     public boolean findEffect = false;
     // blockquest enabled state (toggled by toggle command)
@@ -67,6 +67,7 @@ public class Main extends JavaPlugin  {
 
     // ================================================================== LoadRewardConfigInfo ====================================================================== //
 
+    // the new reward-names: & rewards: yml config loader
     private void LoadRewardConfigInfo() {
         List<String> rewardNames = getConfig().getStringList("reward-names");
         blockFoundRewards = new FoundReward[rewardNames.size()];
@@ -88,7 +89,7 @@ public class Main extends JavaPlugin  {
             saveConfig();
         }
 
-        // load rewards
+        // load rewards system
         LoadRewardConfigInfo();
 
         {
