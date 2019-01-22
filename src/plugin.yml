@@ -1,5 +1,5 @@
 name: BlockQuest
-version: 2.0.1
+version: 2.0.2
 main: me.robifoxx.block.Main
 softdepend: [PlaceholderAPI]
 api-version: 1.13

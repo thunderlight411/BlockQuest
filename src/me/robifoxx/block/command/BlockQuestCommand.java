@@ -43,16 +43,17 @@ public class BlockQuestCommand implements CommandExecutor {
     }
     
     private void noArgumentsCommand(CommandSender sender) {
-        sender.sendMessage("§7§m----------------------------------------");
-        sender.sendMessage("§aYou entered edit mode!");
-        sender.sendMessage("§aClick on blocks to add it to the config file!");
-        sender.sendMessage("§aType §6/blockquest §ato exit edit mode.");
-        sender.sendMessage("§7§m----------------------------------------");
+        //sender.sendMessage("§7§m----------------------------------------");
+        //sender.sendMessage("§aYou entered edit mode!");
+        //sender.sendMessage("§aClick on blocks to add it to the config file!");
+        //sender.sendMessage("§aType §6/blockquest §ato exit edit mode.");
+        sender.sendMessage("§7----------BlockQuest Help----------------");
+        sender.sendMessage("§a§lType §6§l/blockquest edit §a§lto enter/leave edit mode!");
         sender.sendMessage("§a§lType §6§l/blockquest reload §a§lto reload the config!");
         sender.sendMessage("§a§lType §6§l/blockquest toggle §a§lto enable/disable block hunting!");
         sender.sendMessage("§a§lType §6§l/blockquest stats [player] §a§lto check stats!");
         sender.sendMessage("§a§lType §6§l/blockquest save §a§lto save stats!");
-        sender.sendMessage("§7§m----------------------------------------");
+        sender.sendMessage("§7----------------------------------------");
         if(!main.enabled) {
             sender.sendMessage("§c§lBlocks are disabled. Players cant find them until you enable it with §6§l/blockquest toggle");
         }
@@ -64,9 +65,18 @@ public class BlockQuestCommand implements CommandExecutor {
     		if (main.inEdit.contains(playerId)) {
     			main.inEdit.remove(playerId);
     			sender.sendMessage("§cYou disabled edit mode.");
+                sender.sendMessage("§7----------Edit mode disabled----------------");
+                sender.sendMessage("§a§lIt's no longer possible to add blocks");
+                sender.sendMessage("§a§lType §6§l/blockquest edit §a§lto enable edit mode again");
+                sender.sendMessage("§7----------------------------------------");
     		} else {
     			main.inEdit.add(playerId);
     			sender.sendMessage("§aYou enabled edit mode.");
+                sender.sendMessage("§7----------Edit mode Enabled----------------");
+                sender.sendMessage("§a§lClick on skulls you want to add to the hunt!");
+                sender.sendMessage("§a§lIf its already in the config it will be removed!");
+                sender.sendMessage("§a§lType §6§l/blockquest edit §a§lto exit Edit mode");
+                sender.sendMessage("§7----------------------------------------");
     		}
     	} else {
     		sender.sendMessage("§c§mCan't execute this command as console!");
