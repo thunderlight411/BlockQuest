@@ -1,4 +1,4 @@
-package me.robifoxx.block.mysql;
+package me.robifoxx.block;
 
 import java.util.List;
 

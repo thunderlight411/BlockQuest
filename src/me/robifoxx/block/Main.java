@@ -60,8 +60,23 @@ public class Main extends JavaPlugin  {
     public Material hideFoundBlocks = Material.AIR;
     // stores effect data
     public FindEffect findEffectC;
+    // stores reward info
+    public FoundReward[] blockFoundRewards = null;
     // reference to Main singleton class instance
     private static Main plugin;
+
+    // ================================================================== LoadRewardConfigInfo ====================================================================== //
+
+    private void LoadRewardConfigInfo() {
+        List<String> rewardNames = getConfig().getStringList("reward-names");
+        blockFoundRewards = new FoundReward[rewardNames.size()];
+        for(int i = 0; i < rewardNames.size(); i++) {
+            String rewardName = rewardNames.get(i);
+            int blockGoal = getConfig().getInt("rewards." + rewardName + ".block-count");
+            List<String> commands = getConfig().getStringList("rewards." + rewardName + ".commands");
+            blockFoundRewards[i] = new FoundReward(blockGoal, commands);
+        }
+    }
 
 // ======================================================================== on plugin enable ======================================================================== //
     public void onEnable() {
@@ -72,6 +87,10 @@ public class Main extends JavaPlugin  {
             getConfig().options().copyDefaults(true);
             saveConfig();
         }
+
+        // load rewards
+        LoadRewardConfigInfo();
+
         {
             // open data.yml
             Config c = new Config("plugins/" + fileName, "data.yml", this);

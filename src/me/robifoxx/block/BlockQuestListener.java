@@ -174,6 +174,7 @@ public class BlockQuestListener implements Listener {
                             main.data.getConfig().set("data." + Utils.getIdentifier(e.getPlayer()) + ".world", main.saved_world.get(e.getPlayer().getName()));
                             main.data.saveConfig();
                         }
+
                         int blocksLeft = main.getConfig().getStringList("blocks").size() - main.blocksss.get(e.getPlayer().getName()).size();
                         boolean foundAllBlocks = main.blocksss.get(e.getPlayer().getName()).size() >= main.getConfig().getStringList("blocks").size();
                         if(main.checkFullInventory >= Utils.getEmptyInventorySpaces(e.getPlayer())
