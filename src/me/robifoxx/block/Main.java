@@ -68,12 +68,12 @@ public class Main extends JavaPlugin  {
     // ================================================================== LoadRewardConfigInfo ====================================================================== //
 
     // the new reward-names: & rewards: yml config loader
-    private void LoadRewardConfigInfo() {
+    public void LoadRewardConfigInfo() {
         List<String> rewardNames = getConfig().getStringList("reward-names");
         blockFoundRewards = new FoundReward[rewardNames.size()];
         for(int i = 0; i < rewardNames.size(); i++) {
             String rewardName = rewardNames.get(i);
-            int blockGoal = getConfig().getInt("rewards." + rewardName + ".block-count");
+            int blockGoal = getConfig().getInt("rewards." + rewardName + ".block-goal");
             List<String> commands = getConfig().getStringList("rewards." + rewardName + ".commands");
             blockFoundRewards[i] = new FoundReward(blockGoal, commands);
         }

@@ -85,6 +85,7 @@ public class BlockQuestCommand implements CommandExecutor {
     
     private void reloadCommand(CommandSender sender) {
         main.reloadConfig();
+        main.LoadRewardConfigInfo();
         Utils.sendMessageFromMSGS(sender, main.msgs.getConfig().getString("config-reloaded"));
     }
     
