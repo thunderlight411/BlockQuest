@@ -3,7 +3,6 @@ package me.robifoxx.block;
 import com.darkblade12.particleeffect.ParticleEffect;
 import me.robifoxx.block.api.Config;
 import me.robifoxx.block.api.FindEffect;
-import me.robifoxx.block.api.Metrics;
 import me.robifoxx.block.api.Skulls;
 import me.robifoxx.block.command.BlockQuestCommand;
 import me.robifoxx.block.command.BlockStatsCommand;
@@ -260,11 +259,6 @@ public class Main extends JavaPlugin  {
             }, loop, loop);
         }
 
-        // ????????? sends block data to a remote site ????????? check Metrics class ???
-        getLogger().info("Enabling Metrics (bStats).");
-        Metrics m = new Metrics(this);
-        m.addCustomChart(new Metrics.SingleLineChart("blocks", () -> BlockQuestAPI.getInstance().getAllBlocks().length));
-        getLogger().info("Enabled Metrics.");
 
         // store this instance reference to static plugin variable
         plugin = this;
@@ -334,7 +328,7 @@ public class Main extends JavaPlugin  {
     }
     // ======================================================================== get methods ======================================================================== //
     
-    // get reference to Main singleton class 
+    // get reference to Main singleton class t
     public static Main getPlugin() {
         return plugin;
     }
