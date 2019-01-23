@@ -115,14 +115,14 @@ public class BlockQuestListener implements Listener {
     @EventHandler
     public void click(PlayerInteractEvent e) {
         // check if previous event for target player has finished
-        if (main.pendingEvents.contains(e.getPlayer().getName())) {
+        if (main.pendingEvents.contains(e.getPlayer().getUniqueId())) {
             return;
         }
         // add player to pending event list
-        main.pendingEvents.add(e.getPlayer().getName());
+        main.pendingEvents.add(e.getPlayer().getUniqueId());
         // schedule pending remove task next tick
         Bukkit.getScheduler().scheduleSyncDelayedTask(main, () -> {
-            main.pendingEvents.remove(e.getPlayer().getName());
+            main.pendingEvents.remove(e.getPlayer().getUniqueId());
         }, 1);
         // =========================== if action is right click =========================== //
         if (e.getAction() == Action.RIGHT_CLICK_BLOCK) {
@@ -132,72 +132,92 @@ public class BlockQuestListener implements Listener {
                 Utils.hideFoundBlocks(e.getPlayer());
             });
             // convert block location data to readable string format X;Y;Z;worldname
-            String block = BlockQuestAPI.getInstance().convertLocToString(e.getClickedBlock().getLocation());
+            final String clickedBlock = BlockQuestAPI.getInstance().convertLocToString(e.getClickedBlock().getLocation());
             // =============================== check if player is in edit mode =============================== //
-            if (main.inEdit.contains(e.getPlayer().getUniqueId()) && (e.getClickedBlock().getType() == Material.PLAYER_HEAD || e.getClickedBlock().getType() == Material.PLAYER_WALL_HEAD)) {
-                // check if location is already added to the hunt list if so remove it
-                if (BlockQuestAPI.getInstance().removeLocation(e.getClickedBlock().getLocation())) {
-                    e.getPlayer().sendMessage("§cRemoved this block!");
+            if (main.inEdit.contains(e.getPlayer().getUniqueId())) {
+                // check if target block is a skull
+                if(e.getClickedBlock().getType() == Material.PLAYER_HEAD || e.getClickedBlock().getType() == Material.PLAYER_WALL_HEAD) {
+                    // check if location is already added to the hunt list if so remove it
+                    if (BlockQuestAPI.getInstance().removeLocation(e.getClickedBlock().getLocation())) {
+                        e.getPlayer().sendMessage("§cRemoved this block!");
+                    } else {
+                        // not added, add location to auxiliary storage
+                        BlockQuestAPI.getInstance().addLocation(e.getClickedBlock().getLocation());
+                        e.getPlayer().sendMessage("§aAdded this block!");
+                    }
+                // block is not a skull
                 } else {
-                    // not added, add location to auxiliary storage
-                    BlockQuestAPI.getInstance().addLocation(e.getClickedBlock().getLocation());
-                    e.getPlayer().sendMessage("§aAdded this block!");
+                    e.getPlayer().sendMessage("§cThis is not a player head!");
                 }
                 // =============================== player is not in edit mode =============================== //
             } else {
-                if (main.inEdit.contains(e.getPlayer().getUniqueId())) {
-                    e.getPlayer().sendMessage("§cThis is not a player head!");
-                }
-                if (main.getConfig().getStringList("blocks").contains(block)) {
+                // check clicked block for hunting block type
+                if (main.getConfig().getStringList("blocks").contains(clickedBlock)) {
+                    // ============ check if block wasn't previously found ============ //
                     if (main.blocksss.get(e.getPlayer().getName()) == null
-                            || !main.blocksss.get(e.getPlayer().getName()).contains(block)) {
+                            || !main.blocksss.get(e.getPlayer().getName()).contains(clickedBlock)) {
+                        // check if block quest hunting is disabled
                         if (!main.enabled) {
+                            // end method with msg
                             e.getPlayer().sendMessage(main.disabledMsg.replace("&", "§"));
                             return;
                         }
+                        // write found block to hash tables
                         main.saved_x.put(e.getPlayer().getName(), main.saved_x.get(e.getPlayer().getName()) + ";" + e.getClickedBlock().getLocation().getBlockX());
                         main.saved_y.put(e.getPlayer().getName(), main.saved_y.get(e.getPlayer().getName()) + ";" + e.getClickedBlock().getLocation().getBlockY());
                         main.saved_z.put(e.getPlayer().getName(), main.saved_z.get(e.getPlayer().getName()) + ";" + e.getClickedBlock().getLocation().getBlockZ());
                         main.saved_world.put(e.getPlayer().getName(), main.saved_world.get(e.getPlayer().getName()) + ";" + e.getClickedBlock().getLocation().getWorld().getName());
+                        // create new arraylist for blocksss if none is available
                         if (main.blocksss.get(e.getPlayer().getName()) == null) {
                             List<String> lst = new ArrayList<>();
-                            lst.add(block);
+                            lst.add(clickedBlock);
+                            // write block to blocksss
                             main.blocksss.put(e.getPlayer().getName(), lst);
                         } else {
-                            main.blocksss.get(e.getPlayer().getName()).add(block);
+                            // write block to blocksss
+                            main.blocksss.get(e.getPlayer().getName()).add(clickedBlock);
                         }
+                        // if using useMysql write block to database
                         if (main.useMysql) {
                             if (!main.unsafeSave) {
+                                // write saved_x/y/z/world data to database
                                 SQLPlayer.setString(Utils.getIdentifier(e.getPlayer()), "X", main.saved_x.get(e.getPlayer().getName()));
                                 SQLPlayer.setString(Utils.getIdentifier(e.getPlayer()), "Y", main.saved_y.get(e.getPlayer().getName()));
                                 SQLPlayer.setString(Utils.getIdentifier(e.getPlayer()), "Z", main.saved_z.get(e.getPlayer().getName()));
                                 SQLPlayer.setString(Utils.getIdentifier(e.getPlayer()), "WORLD", main.saved_world.get(e.getPlayer().getName()));
                             }
+                        // write block to flat file if not using useMysql
                         } else {
+                            // write saved_x/y/z/world data to file
                             main.data.getConfig().set("data." + Utils.getIdentifier(e.getPlayer()) + ".x", main.saved_x.get(e.getPlayer().getName()));
                             main.data.getConfig().set("data." + Utils.getIdentifier(e.getPlayer()) + ".y", main.saved_y.get(e.getPlayer().getName()));
                             main.data.getConfig().set("data." + Utils.getIdentifier(e.getPlayer()) + ".z", main.saved_z.get(e.getPlayer().getName()));
                             main.data.getConfig().set("data." + Utils.getIdentifier(e.getPlayer()) + ".world", main.saved_world.get(e.getPlayer().getName()));
                             main.data.saveConfig();
                         }
+                        // get the amount of blocks not found
                         int blocksLeft = main.getConfig().getStringList("blocks").size() - main.blocksss.get(e.getPlayer().getName()).size();
+                        // stores true if all block are found, false otherwise
                         boolean foundAllBlocks = main.blocksss.get(e.getPlayer().getName()).size() >= main.getConfig().getStringList("blocks").size();
-                        if (main.checkFullInventory >= Utils.getEmptyInventorySpaces(e.getPlayer())
-                                && foundAllBlocks) {
-                            if (e.getPlayer().getInventory().firstEmpty() == -1) {
-                                main.blocksss.get(e.getPlayer().getName()).remove(block);
-                                e.getPlayer().sendMessage(main.fullInventoryMsg.replace("&", "§"));
-                                return;
-                            }
+                        // if not enough free space is available and all blocks are found then (main.checkFullInventory default value = 0)
+                        if (Utils.getEmptyInventorySpaces(e.getPlayer()) < main.checkFullInventory && foundAllBlocks) {
+                            // remove block found info from blocksss hash map, ??? but not from saved_x/y/z/world that's also flushed to disk ???
+                            main.blocksss.get(e.getPlayer().getName()).remove(clickedBlock);
+                            // cancel block find with error msg
+                            e.getPlayer().sendMessage(main.fullInventoryMsg.replace("&", "§"));
+                            return;
                         }
+                        // ???? effect crap ???? deprecated ????
                         BlockFindEvent evnt = new BlockFindEvent(e.getPlayer(), e.getClickedBlock(), main.findEffectC);
                         Bukkit.getPluginManager().callEvent(evnt);
                         if (evnt.isCancelled()) {
-                            main.blocksss.get(e.getPlayer().getName()).remove(block);
+                            // cancel block find
+                            main.blocksss.get(e.getPlayer().getName()).remove(clickedBlock);
                             return;
                         }
-
+                        // Play the awesome Chantal flies through the air effect crap!
                         playFindEffect(e.getClickedBlock().getLocation().clone().add(0.5, 0, 0.5), evnt.getEffect());
+                        // Execute player found block commands
                         for (String s : main.getConfig().getStringList("find-block-commands")) {
                             Bukkit.dispatchCommand(Bukkit.getConsoleSender(), s.replace("%player%", e.getPlayer().getName())
                                     .replace("%pLocX%", "" + e.getPlayer().getLocation().getX())
@@ -212,7 +232,9 @@ public class BlockQuestListener implements Listener {
                                     .replace("%blockLeft%", "" + blocksLeft)
                                     .replace("%blocksLeft%", "" + blocksLeft));
                         }
+                        // Execute player found all blocks commands if foundAllBlocks is true
                         if (foundAllBlocks) {
+                            // Execute player already found all blocks commands
                             for (String s : main.getConfig().getStringList("all-blocks-found-commands")) {
                                 Bukkit.dispatchCommand(Bukkit.getConsoleSender(), s.replace("%player%", e.getPlayer().getName())
                                         .replace("%pLocX%", "" + e.getPlayer().getLocation().getX())
@@ -228,10 +250,12 @@ public class BlockQuestListener implements Listener {
                                         .replace("%blocksLeft%", "" + blocksLeft));
                             }
                         }
+                        // ============ block is already found ============ //
                     } else {
-                        if (main.blocksss.get(e.getPlayer().getName()).contains(block)) {
+                        if (main.blocksss.get(e.getPlayer().getName()).contains(clickedBlock)) {
                             int blocksLeft = main.getConfig().getStringList("blocks").size() - main.blocksss.get(e.getPlayer().getName()).size();
                             if (blocksLeft <= 0) {
+                                // Execute player already found all blocks commands
                                 for (String s : main.getConfig().getStringList("already-found-all-blocks")) {
                                     Bukkit.dispatchCommand(Bukkit.getConsoleSender(), s.replace("%player%", e.getPlayer().getName())
                                             .replace("%pLocX%", "" + e.getPlayer().getLocation().getX())
@@ -247,6 +271,7 @@ public class BlockQuestListener implements Listener {
                                             .replace("%blocksLeft%", "" + blocksLeft));
                                 }
                             } else {
+                                // Execute player already found block commands
                                 for (String s : main.getConfig().getStringList("already-found-commands")) {
                                     Bukkit.dispatchCommand(Bukkit.getConsoleSender(), s.replace("%player%", e.getPlayer().getName())
                                             .replace("%pLocX%", "" + e.getPlayer().getLocation().getX())
