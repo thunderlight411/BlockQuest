@@ -1,7 +1,6 @@
 package me.robifoxx.block;
 
 import me.robifoxx.block.api.FindEffect;
-import me.robifoxx.block.events.BlockFindEvent;
 import me.robifoxx.block.mysql.SQLPlayer;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -215,19 +214,7 @@ public class BlockQuestListener implements Listener {
                                 break;
                             }
                         }
-                        // ???? effect crap ???? deprecated ????
-                        /*
-                        BlockFindEvent evnt = new BlockFindEvent(event.getPlayer(), event.getClickedBlock(), main.findEffectC);
-                        Bukkit.getPluginManager().callEvent(evnt);
-                        if (evnt.isCancelled()) {
-                            // cancel block find
-                            main.blocksss.get(event.getPlayer().getName()).remove(clickedBlock);
-                            return;
-                        }
-                        */
-
                         // Play the awesome Chantal flies through the air effect crap!
-                        // playFindEffect(event.getClickedBlock().getLocation().clone().add(0.5, 0, 0.5), evnt.getEffect()); // ============= OLD =============
                         playFindEffect(event.getClickedBlock().getLocation().clone().add(0.5, 0, 0.5), main.findEffectC);
 
                         // Execute player found block commands
