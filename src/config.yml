@@ -42,22 +42,22 @@ already-found-commands:
 already-found-all-blocks:
 - tell %player% je hebt alle skulls al gevonden!
 reward-names:
-- coal-skull-goal
-- iron-skull-goal
-- gold-skull-goal
+- tier0-skull-goal
+- tier1-skull-goal
+- tier2-skull-goal
 rewards:
-    coal-skull-goal:
-        block-goal: 10
+    tier0-skull-goal:
+        block-goal: 1
         commands:
-            - tell %player% je hebt 10 skulls gevonden!
-    iron-skull-goal:
-        block-goal: 30
+            - tell %player% je hebt 1 skulls gevonden!
+    tier1-skull-goal:
+        block-goal: 3
         commands:
-            - tell %player% je hebt 30 skulls gevonden!
-    gold-skull-goal:
-        block-goal: 60
+            - tell %player% je hebt 3 skulls gevonden!
+    tier2-skull-goal:
+        block-goal: 6
         commands:
-            - tell %player% je hebt 60 skulls gevonden!
+            - tell %player% je hebt 6 skulls gevonden!
 find-effect:
     enabled: true
     invisible: true
