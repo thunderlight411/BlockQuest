@@ -216,6 +216,7 @@ public class BlockQuestListener implements Listener {
                             }
                         }
                         // ???? effect crap ???? deprecated ????
+                        /*
                         BlockFindEvent evnt = new BlockFindEvent(event.getPlayer(), event.getClickedBlock(), main.findEffectC);
                         Bukkit.getPluginManager().callEvent(evnt);
                         if (evnt.isCancelled()) {
@@ -223,8 +224,12 @@ public class BlockQuestListener implements Listener {
                             main.blocksss.get(event.getPlayer().getName()).remove(clickedBlock);
                             return;
                         }
+                        */
+
                         // Play the awesome Chantal flies through the air effect crap!
-                        playFindEffect(event.getClickedBlock().getLocation().clone().add(0.5, 0, 0.5), evnt.getEffect());
+                        // playFindEffect(event.getClickedBlock().getLocation().clone().add(0.5, 0, 0.5), evnt.getEffect()); // ============= OLD =============
+                        playFindEffect(event.getClickedBlock().getLocation().clone().add(0.5, 0, 0.5), main.findEffectC);
+
                         // Execute player found block commands
                         executeCommands(main.getConfig().getStringList("find-block-commands"), event, blocksLeft);
                         // Execute player found all blocks commands if foundAllBlocks is true
