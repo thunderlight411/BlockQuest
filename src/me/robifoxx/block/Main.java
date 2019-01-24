@@ -9,12 +9,14 @@ import me.robifoxx.block.command.BlockStatsCommand;
 import me.robifoxx.block.command.BlockQuestTab;
 import me.robifoxx.block.mysql.MySQL;
 import me.robifoxx.block.mysql.SQLPlayer;
+
 import org.bukkit.*;
+import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
+import org.bukkit.event.Listener;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.java.JavaPlugin;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -24,8 +26,9 @@ import java.util.UUID;
  * Created by RobiFoxx.
  * All rights reserved.
  */
-public class Main extends JavaPlugin  {
-	
+public class Main extends JavaPlugin implements Listener {
+    FileConfiguration config = getConfig();
+
 // ======================================================================== global data ======================================================================== //
 	// MySQL object reference
     public MySQL mysql;
@@ -83,13 +86,21 @@ public class Main extends JavaPlugin  {
         // get plugin folder name
         String fileName = this.getDescription().getName();
         // copy default config if it doesn't exist. getConfig() = reference to config.yml
-        if(!(new File("plugins/" + fileName + "/config.yml").exists())) {
+/*        if(!(new File("plugins/" + fileName + "/config.yml").exists())) {
             getConfig().options().copyDefaults(true);
             saveConfig();
         }
+*/
+        config.options().copyDefaults(true);
+        saveConfig();
+        getServer().getPluginManager().registerEvents(this, this);
+
 
         // load rewards system
         LoadRewardConfigInfo();
+
+        // reload config
+        reloadConfig();
 
         {
             // open data.yml
@@ -115,9 +126,9 @@ public class Main extends JavaPlugin  {
         }
 
         // if use-mysql: equals true in config.yml
-        if(getConfig().getString("use-mysql").equalsIgnoreCase("true")) {
+        if(config.getString("use-mysql").equalsIgnoreCase("true")) {
             // create mysql object
-            mysql = new MySQL(getConfig().getString("mysql-host"), getConfig().getString("mysql-database"), getConfig().getString("mysql-username"), getConfig().getString("mysql-password"));
+            mysql = new MySQL(config.getString("mysql-host"), config.getString("mysql-database"), config.getString("mysql-username"), config.getString("mysql-password"));
             // call to helper function
             createMySQL();
             useMysql = true;
@@ -127,41 +138,41 @@ public class Main extends JavaPlugin  {
         Bukkit.getPluginManager().registerEvents(new BlockQuestListener(this), this);
 
         // load mysql-unsafe-save from config.yml
-        if(getConfig().getString("mysql-unsafe-save") != null) {
-            if(getConfig().getString("mysql-unsafe-save").equalsIgnoreCase("false")) {
+        if(config.getString("mysql-unsafe-save") != null) {
+            if(config.getString("mysql-unsafe-save").equalsIgnoreCase("false")) {
                 unsafeSave = false;
             }
         }
 
         // if already-found-all-blocks: in config.yml is null set default value.
-        if(getConfig().getStringList("already-found-all-blocks") == null) {
-            getConfig().set("already-found-all-blocks", new ArrayList<String>().add("msg %player% You already found all blocks!"));
+        if(config.getStringList("already-found-all-blocks") == null) {
+            config.set("already-found-all-blocks", new ArrayList<String>().add("msg %player% You already found all blocks!"));
         }
 
         // load plugin enabled/disabled state + disabled msg from config.yml
-        if(getConfig().get("enabled") != null) {
-            enabled = getConfig().getBoolean("enabled");
-            if(getConfig().get("disabled-msg") != null) {
-                disabledMsg = getConfig().getString("disabled-msg");
+        if(config.get("enabled") != null) {
+            enabled = config.getBoolean("enabled");
+            if(config.get("disabled-msg") != null) {
+                disabledMsg = config.getString("disabled-msg");
             }
         }
 
         // load useUUID value from config.yml
-        if(getConfig().get("use-uuid") != null) {
-            Utils.useUUID = getConfig().getBoolean("use-uuid");
+        if(config.get("use-uuid") != null) {
+            Utils.useUUID = config.getBoolean("use-uuid");
         }
 
         // load the amount of free spaces required for a reward from config.yml
-        if (getConfig().get("check-full-inventory") != null) {
-            checkFullInventory = getConfig().getInt("check-full-inventory");
-            if (getConfig().get("full-inventory-msg") != null) {
-                fullInventoryMsg = getConfig().getString("full-inventory-msg");
+        if (config.get("check-full-inventory") != null) {
+            checkFullInventory = config.getInt("check-full-inventory");
+            if (config.get("full-inventory-msg") != null) {
+                fullInventoryMsg = config.getString("full-inventory-msg");
             }
         }
 
         {
             // load hide block type based on string defined at hide-found-blocks: in config.yml
-            String s = getConfig().getString("hide-found-blocks");
+            String s = config.getString("hide-found-blocks");
             if (s != null) {
                 if (s.equalsIgnoreCase("NONE")) {
                     hideFoundBlocks = null;
@@ -174,8 +185,9 @@ public class Main extends JavaPlugin  {
         }
 
         // if using placeholderapi: true defined in config.yml
-        if(getConfig().getString("placeholderapi") != null
-                && getConfig().getString("placeholderapi").equalsIgnoreCase("true")) {
+//        if(config.getString("placeholderapi") != null
+//                && config.getString("placeholderapi").equalsIgnoreCase("true")) {
+            if (config.getBoolean("placeholderapi")){
             if(Bukkit.getPluginManager().isPluginEnabled("PlaceholderAPI")) {
                 new Placeholders(this).hook();
             } else {
@@ -186,11 +198,11 @@ public class Main extends JavaPlugin  {
         }
 
         // load if effects are used
-        findEffect = getConfig().getBoolean("find-effect.enabled");
-        boolean enabledParticle = getConfig().getBoolean("particles.enabled");
+        findEffect = config.getBoolean("find-effect.enabled");
+        boolean enabledParticle = config.getBoolean("particles.enabled");
         // load particle effect data
         if(enabledParticle) {
-            int loop = getConfig().getInt("particles.loop");
+            int loop = config.getInt("particles.loop");
             String f_type;
             float f_dx;
             float f_dy;
@@ -205,24 +217,24 @@ public class Main extends JavaPlugin  {
             int nf_quan;
             {
                 String f = "found";
-                f_type = getConfig().getString("particles." + f + ".type");
-                f_dx = Float.valueOf(getConfig().getDouble("particles." + f + ".dx") + "");
-                f_dy = Float.valueOf(getConfig().getDouble("particles." + f + ".dy") + "");
-                f_dz = Float.valueOf(getConfig().getDouble("particles." + f + ".dz") + "");
-                f_speed = Float.valueOf(getConfig().getDouble("particles." + f + ".speed") + "");
-                f_quan = getConfig().getInt("particles." + f + ".quantity");
+                f_type =config.getString("particles." + f + ".type");
+                f_dx = Float.valueOf(config.getDouble("particles." + f + ".dx") + "");
+                f_dy = Float.valueOf(config.getDouble("particles." + f + ".dy") + "");
+                f_dz = Float.valueOf(config.getDouble("particles." + f + ".dz") + "");
+                f_speed = Float.valueOf(config.getDouble("particles." + f + ".speed") + "");
+                f_quan = config.getInt("particles." + f + ".quantity");
             }
             {
                 String f = "notfound";
-                nf_type = getConfig().getString("particles." + f + ".type");
-                nf_dx = Float.valueOf(getConfig().getDouble("particles." + f + ".dx") + "");
-                nf_dy = Float.valueOf(getConfig().getDouble("particles." + f + ".dy") + "");
-                nf_dz = Float.valueOf(getConfig().getDouble("particles." + f + ".dz") + "");
-                nf_speed = Float.valueOf(getConfig().getDouble("particles." + f + ".speed") + "");
-                nf_quan = getConfig().getInt("particles." + f + ".quantity");
+                nf_type =config.getString("particles." + f + ".type");
+                nf_dx = Float.valueOf(config.getDouble("particles." + f + ".dx") + "");
+                nf_dy = Float.valueOf(config.getDouble("particles." + f + ".dy") + "");
+                nf_dz = Float.valueOf(config.getDouble("particles." + f + ".dz") + "");
+                nf_speed = Float.valueOf(config.getDouble("particles." + f + ".speed") + "");
+                nf_quan = config.getInt("particles." + f + ".quantity");
             }
             Bukkit.getScheduler().scheduleSyncRepeatingTask(this, () -> {
-                for(String s : getConfig().getStringList("blocks")) {
+                for(String s : config.getStringList("blocks")) {
                     Bukkit.getScheduler().runTaskAsynchronously(this, () -> {
                         for(Player pl : Bukkit.getOnlinePlayers()) {
                             //If it was a reload, then dont bother to proceed
@@ -265,12 +277,12 @@ public class Main extends JavaPlugin  {
 
         // load effect data stored at find-effect: in config.yml
         {
-            boolean visible = !getConfig().getBoolean("find-effect.invisible");
-            boolean small = getConfig().getBoolean("find-effect.small");
-            String head = getConfig().getString("find-effect.head").equalsIgnoreCase("NONE") ? null : getConfig().getString("find-effect.head");
-            String chest = getConfig().getString("find-effect.chest").equalsIgnoreCase("NONE") ? null : getConfig().getString("find-effect.chest");
-            String leg = getConfig().getString("find-effect.leg").equalsIgnoreCase("NONE") ? null : getConfig().getString("find-effect.leg");
-            String boot = getConfig().getString("find-effect.boot").equalsIgnoreCase("NONE") ? null : getConfig().getString("find-effect.boot");
+            boolean visible = !config.getBoolean("find-effect.invisible");
+            boolean small = config.getBoolean("find-effect.small");
+            String head = config.getString("find-effect.head").equalsIgnoreCase("NONE") ? null : config.getString("find-effect.head");
+            String chest = config.getString("find-effect.chest").equalsIgnoreCase("NONE") ? null : config.getString("find-effect.chest");
+            String leg = config.getString("find-effect.leg").equalsIgnoreCase("NONE") ? null : config.getString("find-effect.leg");
+            String boot = config.getString("find-effect.boot").equalsIgnoreCase("NONE") ? null : config.getString("find-effect.boot");
             ItemStack h = null;
             ItemStack c = null;
             ItemStack l = null;
@@ -291,7 +303,7 @@ public class Main extends JavaPlugin  {
             if(boot != null) {
                 b = new ItemStack(Material.valueOf(boot));
             }
-            findEffectC = new FindEffect(h, c, l, b, visible, small, getConfig().getString("find-effect.custom-name"));
+            findEffectC = new FindEffect(h, c, l, b, visible, small, config.getString("find-effect.custom-name"));
         }
 
         // set command Executors and tab completers
